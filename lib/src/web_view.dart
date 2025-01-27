@@ -58,7 +58,6 @@ class _WebViewState extends State<WebView> {
 
   @override
   void initState() {
-    FlutterNativeSplash.remove();
     super.initState();
     contextMenu = ContextMenu(
       menuItems: [
@@ -94,6 +93,9 @@ class _WebViewState extends State<WebView> {
           );
 
     initLastWebUrl();
+    Future.delayed(const Duration(seconds: 2), () {
+      FlutterNativeSplash.remove();
+    });
   }
 
   @override
