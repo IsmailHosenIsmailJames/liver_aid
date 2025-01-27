@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter/material.dart';
@@ -100,6 +102,7 @@ class _WebViewState extends State<WebView> {
     });
 
     inAppUpdateAndroid(context);
+    log("New App Update Caking");
   }
 
   @override

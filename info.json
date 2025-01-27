@@ -7,19 +7,19 @@
       "removeCacheOnUpdate": false,
       "removeDataOnUpdate": false,
       "removeCacheAndDataOnUpdate": false,
-      "downloadLink": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.0.1/app-release.apk",
+      "downloadLink": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.1.0/app-release.apk",
       "downloadLinkList": [
         {
           "architecture": "x86_64",
-          "link": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.0.1/app-release.apk"
+          "link": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.1.0/app-x86_64-release.apk"
         },
         {
           "architecture": "armeabi-v7a",
-          "link": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.0.1/app-release.apk"
+          "link": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.1.0/app-armeabi-v7a-release.apk"
         },
         {
           "architecture": "arm64-v8a",
-          "link": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.0.1/app-release.apk"
+          "link": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.1.0/app-arm64-v8a-release.apk"
         }
       ]
     }
