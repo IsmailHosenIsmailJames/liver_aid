@@ -6,6 +6,8 @@ import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
+import 'core/in_app_update/in_app_android_update/in_app_update_android.dart';
+
 class WebView extends StatefulWidget {
   const WebView({super.key});
 
@@ -96,6 +98,8 @@ class _WebViewState extends State<WebView> {
     Future.delayed(const Duration(seconds: 2), () {
       FlutterNativeSplash.remove();
     });
+
+    inAppUpdateAndroid(context);
   }
 
   @override

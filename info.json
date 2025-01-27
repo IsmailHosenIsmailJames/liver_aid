@@ -1,5 +1,26 @@
 {
-    "version" : "1.0.1",
-    "buildNumber" : "1",
-    "downloadLink" : "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.0.1/app-release.apk"
-}
+    "success": true,
+    "result": {
+      "version": "1.0.1",
+      "buildNumber": "1",
+      "forceToUpdate": true,
+      "removeCacheOnUpdate": false,
+      "removeDataOnUpdate": false,
+      "removeCacheAndDataOnUpdate": false,
+      "downloadLink": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.0.1/app-release.apk",
+      "downloadLinkList": [
+        {
+          "architecture": "x86_64",
+          "link": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.0.1/app-release.apk"
+        },
+        {
+          "architecture": "armeabi-v7a",
+          "link": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.0.1/app-release.apk"
+        },
+        {
+          "architecture": "arm64-v8a",
+          "link": "https://github.com/IsmailHosenIsmailJames/liver_aid/releases/download/v1.0.1/app-release.apk"
+        }
+      ]
+    }
+  }
