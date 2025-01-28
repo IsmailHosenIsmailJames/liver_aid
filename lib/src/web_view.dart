@@ -24,10 +24,13 @@ class _WebViewState extends State<WebView> {
   late ContextMenu contextMenu;
   InAppWebViewController? webViewController;
   InAppWebViewSettings settings = InAppWebViewSettings(
-      mediaPlaybackRequiresUserGesture: false,
-      allowsInlineMediaPlayback: true,
-      iframeAllow: "camera; microphone",
-      iframeAllowFullscreen: true);
+    cacheEnabled: true,
+    cacheMode: CacheMode.LOAD_CACHE_ELSE_NETWORK,
+    mediaPlaybackRequiresUserGesture: false,
+    allowsInlineMediaPlayback: true,
+    iframeAllow: "camera; microphone",
+    iframeAllowFullscreen: true,
+  );
 
   Widget initWidget = const Center(
     child: LinearProgressIndicator(
@@ -118,7 +121,8 @@ class _WebViewState extends State<WebView> {
         }
       },
       child: Scaffold(
-        body: initWidget,
+        backgroundColor: Colors.blue,
+        body: SafeArea(child: initWidget),
       ),
     );
   }
