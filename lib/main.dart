@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.system,
-      home: const WebView(),
+      home: const WebViewInApp(),
     );
   }
 }

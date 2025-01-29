@@ -1,30 +1,30 @@
-import 'dart:developer';
-
+import 'dart:collection';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter/material.dart';
-
-import 'dart:collection';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:liver_aid/src/do_data_found.dart';
+import 'package:liver_aid/src/no_internet.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
-import 'core/in_app_update/in_app_android_update/in_app_update_android.dart';
-
-class WebView extends StatefulWidget {
-  const WebView({super.key});
+class WebViewInApp extends StatefulWidget {
+  const WebViewInApp({
+    super.key,
+  });
 
   @override
-  State<WebView> createState() => _WebViewState();
+  WebViewInAppState createState() => WebViewInAppState();
 }
 
-class _WebViewState extends State<WebView> {
+class WebViewInAppState extends State<WebViewInApp> {
   final GlobalKey webViewKey = GlobalKey();
-  PullToRefreshController? pullToRefreshController;
 
-  late ContextMenu contextMenu;
   InAppWebViewController? webViewController;
   InAppWebViewSettings settings = InAppWebViewSettings(
-    cacheEnabled: true,
+    isInspectable: kDebugMode,
     cacheMode: CacheMode.LOAD_CACHE_ELSE_NETWORK,
     mediaPlaybackRequiresUserGesture: false,
     allowsInlineMediaPlayback: true,
@@ -32,10 +32,12 @@ class _WebViewState extends State<WebView> {
     iframeAllowFullscreen: true,
   );
 
+  PullToRefreshController? pullToRefreshController;
+
+  late ContextMenu contextMenu;
+  double progress = 0;
   Widget initWidget = const Center(
-    child: LinearProgressIndicator(
-      color: Colors.blue,
-    ),
+    child: CircularProgressIndicator(),
   );
 
   void initLastWebUrl() async {
@@ -43,7 +45,11 @@ class _WebViewState extends State<WebView> {
     setState(() {
       initWidget = InAppWebView(
         key: webViewKey,
+        // initialFile: initUrl,
         initialUrlRequest: URLRequest(url: WebUri(initUrl)),
+        // initialUrlRequest:
+        // URLRequest(url: WebUri(Uri.base.toString().replaceFirst("/#/", "/") + 'page.html')),
+        // initialFile: "assets/index.html",
         initialUserScripts: UnmodifiableListView<UserScript>([]),
         initialSettings: settings,
         contextMenu: contextMenu,
@@ -51,20 +57,73 @@ class _WebViewState extends State<WebView> {
         onWebViewCreated: (controller) async {
           webViewController = controller;
         },
+        onLoadStart: (controller, url) async {
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          if (url != null) {
+            await prefs.setString("last_url", url.toString());
+          }
+        },
         onPermissionRequest: (controller, request) async {
           return PermissionResponse(
               resources: request.resources,
               action: PermissionResponseAction.GRANT);
         },
+
         onReceivedError: (controller, request, error) {
           pullToRefreshController?.endRefreshing();
+          _handleLoadError();
+        },
+        onProgressChanged: (controller, progress) {
+          if (progress == 100) {
+            pullToRefreshController?.endRefreshing();
+          }
+          setState(() {
+            this.progress = progress / 100;
+          });
         },
       );
     });
   }
 
+  Future<bool> _isInternetAvailable() async {
+    return await InternetConnection().internetStatus ==
+        InternetStatus.connected;
+  }
+
+  void _handleLoadError() async {
+    bool hasInternet = await _isInternetAvailable();
+    if (!hasInternet) {
+      // No internet, navigate to error page
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => InternetConnectionOffNotify()),
+      );
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        webViewController?.reload();
+      } else if (defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS) {
+        webViewController?.loadUrl(
+            urlRequest: URLRequest(url: await webViewController?.getUrl()));
+      }
+    } else {
+      // Internet available, but URL might not be cached
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PageNotAvailableScreen()),
+      );
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        webViewController?.reload();
+      } else if (defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS) {
+        webViewController?.loadUrl(
+            urlRequest: URLRequest(url: await webViewController?.getUrl()));
+      }
+    }
+  }
+
   @override
   void initState() {
+    FlutterNativeSplash.remove();
     super.initState();
     contextMenu = ContextMenu(
       menuItems: [
@@ -100,12 +159,6 @@ class _WebViewState extends State<WebView> {
           );
 
     initLastWebUrl();
-    Future.delayed(const Duration(seconds: 2), () {
-      FlutterNativeSplash.remove();
-    });
-
-    inAppUpdateAndroid(context);
-    log("New App Update Caking");
   }
 
   @override
@@ -122,8 +175,44 @@ class _WebViewState extends State<WebView> {
       },
       child: Scaffold(
         backgroundColor: Colors.blue,
-        body: SafeArea(child: initWidget),
+        body: SafeArea(
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: Stack(
+                  children: [
+                    initWidget,
+                    progress < 1.0
+                        ? LinearProgressIndicator(value: progress)
+                        : Container(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
+  }
+
+  Future<void> deleteFolder(Directory directory) async {
+    if (await directory.exists()) {
+      // List all entities inside the directory (files, subdirectories)
+      final List<FileSystemEntity> entities = await directory.list().toList();
+
+      // Iterate through the list of entities
+      for (FileSystemEntity entity in entities) {
+        if (entity is Directory) {
+          // If the entity is a directory, call deleteFolder recursively
+          await deleteFolder(entity);
+        } else if (entity is File) {
+          // If the entity is a file, delete it
+          await entity.delete();
+        }
+      }
+
+      // After deleting all contents, delete the directory itself
+      await directory.delete();
+    }
   }
 }
