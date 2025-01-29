@@ -12,6 +12,8 @@ import 'package:liver_aid/src/no_internet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
+import 'core/in_app_update/in_app_android_update/in_app_update_android.dart';
+
 class WebViewInApp extends StatefulWidget {
   const WebViewInApp({
     super.key,
@@ -145,6 +147,8 @@ class WebViewInAppState extends State<WebViewInApp> {
   @override
   void initState() {
     FlutterNativeSplash.remove();
+    inAppUpdateAndroid(context);
+
     super.initState();
     contextMenu = ContextMenu(
       menuItems: [
