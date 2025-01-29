@@ -1,10 +1,12 @@
 import 'dart:collection';
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:liver_aid/src/app_pdf_view.dart';
 import 'package:liver_aid/src/do_data_found.dart';
 import 'package:liver_aid/src/no_internet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,11 +60,30 @@ class WebViewInAppState extends State<WebViewInApp> {
           webViewController = controller;
         },
         onLoadStart: (controller, url) async {
+          String? path = url?.toString();
+          if (path?.contains("url=") == true &&
+              path?.toLowerCase().endsWith(".pdf") == true) {
+            String? url = path?.split("url=").last;
+            if (url != null) {
+              String fullPath = "https://jenpharliveraid.com/uploads/$url";
+              log(fullPath, name: "fullPath");
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AppPdfView(
+                    pdfUrl: fullPath,
+                  ),
+                ),
+              );
+              controller.goBack();
+            }
+          }
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           if (url != null) {
             await prefs.setString("last_url", url.toString());
           }
         },
+
         onPermissionRequest: (controller, request) async {
           return PermissionResponse(
               resources: request.resources,
